@@ -22,7 +22,7 @@ namespace pry_Tattoos
         private Label lblZona;
         private TextBox txtZona;
         private Label lblPresupuesto;
-        private NumericUpDown nudPresupuesto;
+        private TextBox txtPresupuestos;
         private Button btnGuardar;
         private Button btnLimpiar;
         private Label lblVista;
@@ -30,6 +30,7 @@ namespace pry_Tattoos
         private DateTimePicker dtpVista;
         private Button btnHoy;
         private DataGridView dgvTurnos;
+        private DataGridViewButtonColumn btnEliminarTurno;
         private MonthCalendar calMes;
         private Label lblEstado;
 
@@ -64,7 +65,7 @@ namespace pry_Tattoos
             lblZona = new Label();
             txtZona = new TextBox();
             lblPresupuesto = new Label();
-            nudPresupuesto = new NumericUpDown();
+            txtPresupuestos = new TextBox();
             btnGuardar = new Button();
             btnLimpiar = new Button();
             panelAgenda = new Panel();
@@ -73,10 +74,10 @@ namespace pry_Tattoos
             dtpVista = new DateTimePicker();
             btnHoy = new Button();
             dgvTurnos = new DataGridView();
+            btnEliminarTurno = new DataGridViewButtonColumn();
             calMes = new MonthCalendar();
             lblEstado = new Label();
             panelDatos.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)nudPresupuesto).BeginInit();
             panelAgenda.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvTurnos).BeginInit();
             SuspendLayout();
@@ -101,7 +102,7 @@ namespace pry_Tattoos
             panelDatos.Controls.Add(lblZona);
             panelDatos.Controls.Add(txtZona);
             panelDatos.Controls.Add(lblPresupuesto);
-            panelDatos.Controls.Add(nudPresupuesto);
+            panelDatos.Controls.Add(txtPresupuestos);
             panelDatos.Controls.Add(btnGuardar);
             panelDatos.Controls.Add(btnLimpiar);
             panelDatos.Dock = DockStyle.Left;
@@ -234,13 +235,14 @@ namespace pry_Tattoos
             lblDiseno.Name = "lblDiseno";
             lblDiseno.Size = new Size(173, 16);
             lblDiseno.TabIndex = 12;
-            lblDiseno.Text = "Idea / detalles del diseño";
+            lblDiseno.Text = "Ideas / tatuajes (uno por línea)";
             // 
             // txtDiseno
             // 
             txtDiseno.Location = new Point(18, 311);
             txtDiseno.Multiline = true;
             txtDiseno.Name = "txtDiseno";
+            txtDiseno.PlaceholderText = "Ej.: dragón en el brazo\r\nRosa en el hombro";
             txtDiseno.ScrollBars = ScrollBars.Vertical;
             txtDiseno.Size = new Size(317, 58);
             txtDiseno.TabIndex = 13;
@@ -249,7 +251,7 @@ namespace pry_Tattoos
             // 
             lblZona.AutoSize = true;
             lblZona.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
-            lblZona.Location = new Point(18, 382);
+            lblZona.Location = new Point(18, 474);
             lblZona.Name = "lblZona";
             lblZona.Size = new Size(107, 16);
             lblZona.TabIndex = 14;
@@ -257,7 +259,7 @@ namespace pry_Tattoos
             // 
             // txtZona
             // 
-            txtZona.Location = new Point(18, 403);
+            txtZona.Location = new Point(18, 495);
             txtZona.Name = "txtZona";
             txtZona.Size = new Size(150, 23);
             txtZona.TabIndex = 15;
@@ -266,22 +268,22 @@ namespace pry_Tattoos
             // 
             lblPresupuesto.AutoSize = true;
             lblPresupuesto.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
-            lblPresupuesto.Location = new Point(18, 436);
+            lblPresupuesto.Location = new Point(18, 382);
             lblPresupuesto.Name = "lblPresupuesto";
-            lblPresupuesto.Size = new Size(171, 16);
+            lblPresupuesto.Size = new Size(250, 16);
             lblPresupuesto.TabIndex = 18;
-            lblPresupuesto.Text = "Presupuesto acordado ($)";
+            lblPresupuesto.Text = "Presupuestos ($, uno por línea)";
             // 
-            // nudPresupuesto
+            // txtPresupuestos
             // 
-            nudPresupuesto.DecimalPlaces = 2;
-            nudPresupuesto.Font = new Font("Candara", 9.75F, FontStyle.Bold);
-            nudPresupuesto.Location = new Point(18, 457);
-            nudPresupuesto.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
-            nudPresupuesto.Name = "nudPresupuesto";
-            nudPresupuesto.Size = new Size(150, 23);
-            nudPresupuesto.TabIndex = 19;
-            nudPresupuesto.ThousandsSeparator = true;
+            txtPresupuestos.Font = new Font("Candara", 9.75F, FontStyle.Bold);
+            txtPresupuestos.Location = new Point(18, 403);
+            txtPresupuestos.Multiline = true;
+            txtPresupuestos.Name = "txtPresupuestos";
+            txtPresupuestos.PlaceholderText = "Ej.: 1500,00\r\n800,00";
+            txtPresupuestos.ScrollBars = ScrollBars.Vertical;
+            txtPresupuestos.Size = new Size(317, 58);
+            txtPresupuestos.TabIndex = 19;
             // 
             // btnGuardar
             // 
@@ -289,7 +291,7 @@ namespace pry_Tattoos
             btnGuardar.FlatStyle = FlatStyle.Flat;
             btnGuardar.Font = new Font("Book Antiqua", 12F, FontStyle.Bold);
             btnGuardar.ForeColor = Color.White;
-            btnGuardar.Location = new Point(18, 510);
+            btnGuardar.Location = new Point(18, 550);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(155, 49);
             btnGuardar.TabIndex = 20;
@@ -300,7 +302,7 @@ namespace pry_Tattoos
             // btnLimpiar
             // 
             btnLimpiar.Font = new Font("Book Antiqua", 12F, FontStyle.Bold);
-            btnLimpiar.Location = new Point(180, 510);
+            btnLimpiar.Location = new Point(180, 550);
             btnLimpiar.Name = "btnLimpiar";
             btnLimpiar.Size = new Size(155, 49);
             btnLimpiar.TabIndex = 21;
@@ -375,6 +377,13 @@ namespace pry_Tattoos
             dgvTurnos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvTurnos.Size = new Size(690, 540);
             dgvTurnos.TabIndex = 4;
+            btnEliminarTurno.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            btnEliminarTurno.HeaderText = "Acción";
+            btnEliminarTurno.Name = "btnEliminarTurno";
+            btnEliminarTurno.Text = "Eliminar";
+            btnEliminarTurno.UseColumnTextForButtonValue = true;
+            btnEliminarTurno.Width = 75;
+            dgvTurnos.Columns.Add(btnEliminarTurno);
             dgvTurnos.CellContentClick += dgvTurnos_CellContentClick;
             // 
             // calMes
@@ -408,7 +417,6 @@ namespace pry_Tattoos
             Text = "Agenda de turnos - Bona Ink Tattos";
             panelDatos.ResumeLayout(false);
             panelDatos.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)nudPresupuesto).EndInit();
             panelAgenda.ResumeLayout(false);
             panelAgenda.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvTurnos).EndInit();

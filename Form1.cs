@@ -77,13 +77,39 @@ namespace pry_Tattoos
         {
             string nombre = txtNombre.Text.Trim();
             string telefono = txtTelefono.Text.Trim();
+            string disenos = string.Join(Environment.NewLine, txtDiseno.Lines
+                .Select(linea => linea.Trim())
+                .Where(linea => linea.Length > 0));
+            List<string> lineasDiseno = disenos.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<string> lineasPresupuesto = txtPresupuestos.Lines
+                .Select(linea => linea.Trim())
+                .Where(linea => linea.Length > 0)
+                .ToList();
             if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(telefono))
             {
                 MessageBox.Show("Ingrese el nombre y el teléfono del cliente.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(txtDiseno.Text) || string.IsNullOrWhiteSpace(txtZona.Text))
+            if (lineasDiseno.Count != lineasPresupuesto.Count)
+            {
+                MessageBox.Show("Ingrese un presupuesto por cada tatuaje, respetando el mismo orden.", "Presupuestos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            List<decimal> presupuestos = new();
+            foreach (string linea in lineasPresupuesto)
+            {
+                if (!decimal.TryParse(linea, out decimal presupuesto) || presupuesto < 0)
+                {
+                    MessageBox.Show($"El presupuesto «{linea}» no es válido.", "Presupuesto inválido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                presupuestos.Add(presupuesto);
+            }
+
+            if (string.IsNullOrWhiteSpace(disenos) || string.IsNullOrWhiteSpace(txtZona.Text))
             {
                 MessageBox.Show("Complete la idea del diseño y la zona del cuerpo.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -116,9 +142,10 @@ namespace pry_Tattoos
                 ClienteId = cliente.Id,
                 FechaHoraInicio = inicio,
                 FechaHoraFin = fin,
-                Diseno = txtDiseno.Text.Trim(),
+                Diseno = disenos,
                 Zona = txtZona.Text.Trim(),
-                Presupuesto = nudPresupuesto.Value
+                Presupuesto = presupuestos.Sum(),
+                Presupuestos = presupuestos
             });
             GuardarDatos();
             CargarClientes();
@@ -138,8 +165,8 @@ namespace pry_Tattoos
             txtNombre.Clear();
             txtTelefono.Clear();
             txtDiseno.Clear();
+            txtPresupuestos.Clear();
             txtZona.Clear();
-            nudPresupuesto.Value = 0;
             dtpFecha.Value = DateTime.Today;
             dtpHora.Value = DateTime.Today.AddHours(10);
             lblEstado.Text = "Formulario listo para registrar un nuevo turno.";
@@ -183,19 +210,57 @@ namespace pry_Tattoos
             var turnos = datos.Turnos.Where(t => t.FechaHoraInicio >= desde && t.FechaHoraInicio < hasta).OrderBy(t => t.FechaHoraInicio).ToList();
             dgvTurnos.DataSource = turnos.Select(t => new
             {
+                Id = t.Id,
                 Fecha = t.FechaHoraInicio.ToString("dd/MM/yyyy"),
                 Horario = $"{t.FechaHoraInicio:HH:mm} - {t.FechaHoraFin:HH:mm}",
                 Cliente = datos.Clientes.FirstOrDefault(c => c.Id == t.ClienteId)?.Nombre ?? "Sin cliente",
                 Zona = t.Zona,
-                Observaciones = t.Diseno,
+                Observaciones = FormatearObservaciones(t),
                 Presupuesto = t.Presupuesto.ToString("C")
             }).ToList();
+            dgvTurnos.Columns[nameof(Turno.Id)].Visible = false;
+            dgvTurnos.Columns["Observaciones"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dgvTurnos.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             lblEstado.Text = $"{turnos.Count} turno(s) encontrado(s) entre {desde:dd/MM/yyyy} y {hasta.AddDays(-1):dd/MM/yyyy}.";
         }
 
         private void dgvTurnos_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0 || dgvTurnos.Columns[e.ColumnIndex].Name != btnEliminarTurno.Name)
+                return;
 
+            DataGridViewRow fila = dgvTurnos.Rows[e.RowIndex];
+            if (fila.Cells[nameof(Turno.Id)].Value is not Guid turnoId)
+                return;
+
+            Turno? turno = datos.Turnos.FirstOrDefault(t => t.Id == turnoId);
+            if (turno == null)
+                return;
+
+            string nombreCliente = datos.Clientes.FirstOrDefault(c => c.Id == turno.ClienteId)?.Nombre ?? "Sin cliente";
+            DialogResult respuesta = MessageBox.Show(
+                $"¿Está seguro de eliminar el turno de {nombreCliente} del {turno.FechaHoraInicio:dd/MM/yyyy} a las {turno.FechaHoraInicio:HH:mm}?",
+                "Confirmar eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (respuesta != DialogResult.Yes)
+                return;
+
+            datos.Turnos.Remove(turno);
+            GuardarDatos();
+            ActualizarAgenda();
+            lblEstado.Text = "Turno eliminado correctamente.";
+        }
+
+        private static string FormatearObservaciones(Turno turno)
+        {
+            string[] disenos = turno.Diseno.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+            if (turno.Presupuestos.Count != disenos.Length)
+                return turno.Diseno;
+
+            return string.Join(Environment.NewLine, disenos.Select((diseno, indice) =>
+                $"{diseno} - {turno.Presupuestos[indice]:C}"));
         }
     }
 
@@ -223,5 +288,6 @@ namespace pry_Tattoos
         public string Zona { get; set; } = string.Empty;
         public string Estilo { get; set; } = string.Empty;
         public decimal Presupuesto { get; set; }
+        public List<decimal> Presupuestos { get; set; } = new();
     }
 }
