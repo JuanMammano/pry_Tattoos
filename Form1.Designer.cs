@@ -21,8 +21,6 @@ namespace pry_Tattoos
         private TextBox txtDiseno;
         private Label lblZona;
         private TextBox txtZona;
-        private Label lblEstilo;
-        private TextBox txtEstilo;
         private Label lblPresupuesto;
         private NumericUpDown nudPresupuesto;
         private Button btnGuardar;
@@ -48,9 +46,7 @@ namespace pry_Tattoos
 
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             panelDatos = new Panel();
-            panelAgenda = new Panel();
             lblTitulo = new Label();
             lblCliente = new Label();
             cmbCliente = new ComboBox();
@@ -67,12 +63,11 @@ namespace pry_Tattoos
             txtDiseno = new TextBox();
             lblZona = new Label();
             txtZona = new TextBox();
-            lblEstilo = new Label();
-            txtEstilo = new TextBox();
             lblPresupuesto = new Label();
             nudPresupuesto = new NumericUpDown();
             btnGuardar = new Button();
             btnLimpiar = new Button();
+            panelAgenda = new Panel();
             lblVista = new Label();
             cmbVista = new ComboBox();
             dtpVista = new DateTimePicker();
@@ -81,11 +76,13 @@ namespace pry_Tattoos
             calMes = new MonthCalendar();
             lblEstado = new Label();
             panelDatos.SuspendLayout();
-            panelAgenda.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudPresupuesto).BeginInit();
+            panelAgenda.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvTurnos).BeginInit();
             SuspendLayout();
+            // 
             // panelDatos
+            // 
             panelDatos.BackColor = Color.FromArgb(245, 240, 235);
             panelDatos.Controls.Add(lblTitulo);
             panelDatos.Controls.Add(lblCliente);
@@ -103,16 +100,215 @@ namespace pry_Tattoos
             panelDatos.Controls.Add(txtDiseno);
             panelDatos.Controls.Add(lblZona);
             panelDatos.Controls.Add(txtZona);
-            panelDatos.Controls.Add(lblEstilo);
-            panelDatos.Controls.Add(txtEstilo);
             panelDatos.Controls.Add(lblPresupuesto);
             panelDatos.Controls.Add(nudPresupuesto);
             panelDatos.Controls.Add(btnGuardar);
             panelDatos.Controls.Add(btnLimpiar);
             panelDatos.Dock = DockStyle.Left;
+            panelDatos.Location = new Point(0, 0);
+            panelDatos.Name = "panelDatos";
             panelDatos.Padding = new Padding(18);
             panelDatos.Size = new Size(365, 670);
+            panelDatos.TabIndex = 1;
+            // 
+            // lblTitulo
+            // 
+            lblTitulo.AutoSize = true;
+            lblTitulo.Font = new Font("Palatino Linotype", 20.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTitulo.ForeColor = Color.FromArgb(84, 45, 50);
+            lblTitulo.Location = new Point(18, 18);
+            lblTitulo.Name = "lblTitulo";
+            lblTitulo.Size = new Size(176, 37);
+            lblTitulo.TabIndex = 0;
+            lblTitulo.Text = "Nuevo turno";
+            // 
+            // lblCliente
+            // 
+            lblCliente.AutoSize = true;
+            lblCliente.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
+            lblCliente.Location = new Point(18, 70);
+            lblCliente.Name = "lblCliente";
+            lblCliente.Size = new Size(51, 16);
+            lblCliente.TabIndex = 1;
+            lblCliente.Text = "Cliente";
+            // 
+            // cmbCliente
+            // 
+            cmbCliente.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbCliente.Location = new Point(18, 91);
+            cmbCliente.Name = "cmbCliente";
+            cmbCliente.Size = new Size(218, 23);
+            cmbCliente.TabIndex = 2;
+            cmbCliente.SelectedIndexChanged += cmbCliente_SelectedIndexChanged;
+            // 
+            // btnNuevoCliente
+            // 
+            btnNuevoCliente.Location = new Point(242, 90);
+            btnNuevoCliente.Name = "btnNuevoCliente";
+            btnNuevoCliente.Size = new Size(93, 25);
+            btnNuevoCliente.TabIndex = 3;
+            btnNuevoCliente.Text = "Nuevo";
+            btnNuevoCliente.Click += btnNuevoCliente_Click;
+            // 
+            // lblNombre
+            // 
+            lblNombre.AutoSize = true;
+            lblNombre.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
+            lblNombre.Location = new Point(18, 128);
+            lblNombre.Name = "lblNombre";
+            lblNombre.Size = new Size(122, 16);
+            lblNombre.TabIndex = 4;
+            lblNombre.Text = "Nombre y apellido";
+            // 
+            // txtNombre
+            // 
+            txtNombre.Location = new Point(18, 149);
+            txtNombre.Name = "txtNombre";
+            txtNombre.Size = new Size(317, 23);
+            txtNombre.TabIndex = 5;
+            // 
+            // lblTelefono
+            // 
+            lblTelefono.AutoSize = true;
+            lblTelefono.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
+            lblTelefono.Location = new Point(18, 182);
+            lblTelefono.Name = "lblTelefono";
+            lblTelefono.Size = new Size(143, 16);
+            lblTelefono.TabIndex = 6;
+            lblTelefono.Text = "Teléfono / WhatsApp";
+            // 
+            // txtTelefono
+            // 
+            txtTelefono.Location = new Point(18, 203);
+            txtTelefono.Name = "txtTelefono";
+            txtTelefono.Size = new Size(317, 23);
+            txtTelefono.TabIndex = 7;
+            // 
+            // lblFecha
+            // 
+            lblFecha.AutoSize = true;
+            lblFecha.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
+            lblFecha.Location = new Point(18, 236);
+            lblFecha.Name = "lblFecha";
+            lblFecha.Size = new Size(108, 16);
+            lblFecha.TabIndex = 8;
+            lblFecha.Text = "Fecha de sesión";
+            // 
+            // dtpFecha
+            // 
+            dtpFecha.Font = new Font("Candara", 9.75F, FontStyle.Bold);
+            dtpFecha.Format = DateTimePickerFormat.Short;
+            dtpFecha.Location = new Point(18, 257);
+            dtpFecha.Name = "dtpFecha";
+            dtpFecha.Size = new Size(145, 23);
+            dtpFecha.TabIndex = 9;
+            dtpFecha.ValueChanged += datosAgenda_Changed;
+            // 
+            // lblHora
+            // 
+            lblHora.AutoSize = true;
+            lblHora.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
+            lblHora.Location = new Point(185, 236);
+            lblHora.Name = "lblHora";
+            lblHora.Size = new Size(38, 16);
+            lblHora.TabIndex = 10;
+            lblHora.Text = "Hora";
+            // 
+            // dtpHora
+            // 
+            dtpHora.CustomFormat = "HH:mm";
+            dtpHora.Font = new Font("Candara", 9.75F, FontStyle.Bold);
+            dtpHora.Format = DateTimePickerFormat.Custom;
+            dtpHora.Location = new Point(185, 257);
+            dtpHora.Name = "dtpHora";
+            dtpHora.ShowUpDown = true;
+            dtpHora.Size = new Size(150, 23);
+            dtpHora.TabIndex = 11;
+            dtpHora.ValueChanged += datosAgenda_Changed;
+            // 
+            // lblDiseno
+            // 
+            lblDiseno.AutoSize = true;
+            lblDiseno.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
+            lblDiseno.Location = new Point(18, 290);
+            lblDiseno.Name = "lblDiseno";
+            lblDiseno.Size = new Size(173, 16);
+            lblDiseno.TabIndex = 12;
+            lblDiseno.Text = "Idea / detalles del diseño";
+            // 
+            // txtDiseno
+            // 
+            txtDiseno.Location = new Point(18, 311);
+            txtDiseno.Multiline = true;
+            txtDiseno.Name = "txtDiseno";
+            txtDiseno.ScrollBars = ScrollBars.Vertical;
+            txtDiseno.Size = new Size(317, 58);
+            txtDiseno.TabIndex = 13;
+            // 
+            // lblZona
+            // 
+            lblZona.AutoSize = true;
+            lblZona.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
+            lblZona.Location = new Point(18, 382);
+            lblZona.Name = "lblZona";
+            lblZona.Size = new Size(107, 16);
+            lblZona.TabIndex = 14;
+            lblZona.Text = "Zona del cuerpo";
+            // 
+            // txtZona
+            // 
+            txtZona.Location = new Point(18, 403);
+            txtZona.Name = "txtZona";
+            txtZona.Size = new Size(150, 23);
+            txtZona.TabIndex = 15;
+            // 
+            // lblPresupuesto
+            // 
+            lblPresupuesto.AutoSize = true;
+            lblPresupuesto.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
+            lblPresupuesto.Location = new Point(18, 436);
+            lblPresupuesto.Name = "lblPresupuesto";
+            lblPresupuesto.Size = new Size(171, 16);
+            lblPresupuesto.TabIndex = 18;
+            lblPresupuesto.Text = "Presupuesto acordado ($)";
+            // 
+            // nudPresupuesto
+            // 
+            nudPresupuesto.DecimalPlaces = 2;
+            nudPresupuesto.Font = new Font("Candara", 9.75F, FontStyle.Bold);
+            nudPresupuesto.Location = new Point(18, 457);
+            nudPresupuesto.Maximum = new decimal(new int[] { 100000000, 0, 0, 0 });
+            nudPresupuesto.Name = "nudPresupuesto";
+            nudPresupuesto.Size = new Size(150, 23);
+            nudPresupuesto.TabIndex = 19;
+            nudPresupuesto.ThousandsSeparator = true;
+            // 
+            // btnGuardar
+            // 
+            btnGuardar.BackColor = Color.FromArgb(84, 45, 50);
+            btnGuardar.FlatStyle = FlatStyle.Flat;
+            btnGuardar.Font = new Font("Book Antiqua", 12F, FontStyle.Bold);
+            btnGuardar.ForeColor = Color.White;
+            btnGuardar.Location = new Point(18, 510);
+            btnGuardar.Name = "btnGuardar";
+            btnGuardar.Size = new Size(155, 49);
+            btnGuardar.TabIndex = 20;
+            btnGuardar.Text = "Guardar turno";
+            btnGuardar.UseVisualStyleBackColor = false;
+            btnGuardar.Click += btnGuardar_Click;
+            // 
+            // btnLimpiar
+            // 
+            btnLimpiar.Font = new Font("Book Antiqua", 12F, FontStyle.Bold);
+            btnLimpiar.Location = new Point(180, 510);
+            btnLimpiar.Name = "btnLimpiar";
+            btnLimpiar.Size = new Size(155, 49);
+            btnLimpiar.TabIndex = 21;
+            btnLimpiar.Text = "Limpiar";
+            btnLimpiar.Click += btnLimpiar_Click;
+            // 
             // panelAgenda
+            // 
             panelAgenda.Controls.Add(lblVista);
             panelAgenda.Controls.Add(cmbVista);
             panelAgenda.Controls.Add(dtpVista);
@@ -121,48 +317,102 @@ namespace pry_Tattoos
             panelAgenda.Controls.Add(calMes);
             panelAgenda.Controls.Add(lblEstado);
             panelAgenda.Dock = DockStyle.Fill;
+            panelAgenda.Location = new Point(365, 0);
+            panelAgenda.Name = "panelAgenda";
             panelAgenda.Padding = new Padding(18);
-            // lblTitulo
-            lblTitulo.AutoSize = true;
-            lblTitulo.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
-            lblTitulo.ForeColor = Color.FromArgb(84, 45, 50);
-            lblTitulo.Location = new Point(18, 18);
-            lblTitulo.Text = "Nuevo turno";
-            // labels y campos
-            lblCliente.AutoSize = true; lblCliente.Location = new Point(18, 70); lblCliente.Text = "Cliente";
-            cmbCliente.DropDownStyle = ComboBoxStyle.DropDownList; cmbCliente.Location = new Point(18, 91); cmbCliente.Size = new Size(218, 23);
-            cmbCliente.SelectedIndexChanged += cmbCliente_SelectedIndexChanged;
-            btnNuevoCliente.Location = new Point(242, 90); btnNuevoCliente.Size = new Size(93, 25); btnNuevoCliente.Text = "Nuevo"; btnNuevoCliente.Click += btnNuevoCliente_Click;
-            lblNombre.AutoSize = true; lblNombre.Location = new Point(18, 128); lblNombre.Text = "Nombre y apellido";
-            txtNombre.Location = new Point(18, 149); txtNombre.Size = new Size(317, 23);
-            lblTelefono.AutoSize = true; lblTelefono.Location = new Point(18, 182); lblTelefono.Text = "Teléfono / WhatsApp";
-            txtTelefono.Location = new Point(18, 203); txtTelefono.Size = new Size(317, 23);
-            lblFecha.AutoSize = true; lblFecha.Location = new Point(18, 236); lblFecha.Text = "Fecha de sesión";
-            dtpFecha.Format = DateTimePickerFormat.Short; dtpFecha.Location = new Point(18, 257); dtpFecha.Size = new Size(145, 23); dtpFecha.ValueChanged += datosAgenda_Changed;
-            lblHora.AutoSize = true; lblHora.Location = new Point(185, 236); lblHora.Text = "Hora";
-            dtpHora.Format = DateTimePickerFormat.Custom; dtpHora.CustomFormat = "HH:mm"; dtpHora.ShowUpDown = true; dtpHora.Location = new Point(185, 257); dtpHora.Size = new Size(150, 23); dtpHora.ValueChanged += datosAgenda_Changed;
-            lblDiseno.AutoSize = true; lblDiseno.Location = new Point(18, 290); lblDiseno.Text = "Idea / detalles del diseño";
-            txtDiseno.Location = new Point(18, 311); txtDiseno.Multiline = true; txtDiseno.ScrollBars = ScrollBars.Vertical; txtDiseno.Size = new Size(317, 58);
-            lblZona.AutoSize = true; lblZona.Location = new Point(18, 382); lblZona.Text = "Zona del cuerpo";
-            txtZona.Location = new Point(18, 403); txtZona.Size = new Size(150, 23);
-            lblEstilo.AutoSize = true; lblEstilo.Location = new Point(185, 382); lblEstilo.Text = "Estilo artístico";
-            txtEstilo.Location = new Point(185, 403); txtEstilo.Size = new Size(150, 23);
-            lblPresupuesto.AutoSize = true; lblPresupuesto.Location = new Point(18, 436); lblPresupuesto.Text = "Presupuesto acordado ($)";
-            nudPresupuesto.DecimalPlaces = 2; nudPresupuesto.Maximum = 100000000; nudPresupuesto.ThousandsSeparator = true; nudPresupuesto.Location = new Point(18, 457); nudPresupuesto.Size = new Size(150, 23);
-            btnGuardar.BackColor = Color.FromArgb(84, 45, 50); btnGuardar.FlatStyle = FlatStyle.Flat; btnGuardar.ForeColor = Color.White; btnGuardar.Location = new Point(18, 510); btnGuardar.Size = new Size(155, 38); btnGuardar.Text = "Guardar turno"; btnGuardar.Click += btnGuardar_Click;
-            btnLimpiar.Location = new Point(180, 510); btnLimpiar.Size = new Size(155, 38); btnLimpiar.Text = "Limpiar"; btnLimpiar.Click += btnLimpiar_Click;
-            // agenda
-            lblVista.AutoSize = true; lblVista.Font = new Font("Segoe UI", 10F, FontStyle.Bold); lblVista.Location = new Point(18, 18); lblVista.Text = "Vista de agenda";
-            cmbVista.DropDownStyle = ComboBoxStyle.DropDownList; cmbVista.Items.AddRange(new object[] { "Diaria", "Semanal", "Mensual" }); cmbVista.SelectedIndex = 0; cmbVista.Location = new Point(125, 16); cmbVista.Size = new Size(115, 25); cmbVista.SelectedIndexChanged += cmbVista_SelectedIndexChanged;
-            dtpVista.Format = DateTimePickerFormat.Short; dtpVista.Location = new Point(250, 16); dtpVista.Size = new Size(130, 25); dtpVista.ValueChanged += dtpVista_ValueChanged;
-            btnHoy.Location = new Point(390, 16); btnHoy.Size = new Size(75, 25); btnHoy.Text = "Hoy"; btnHoy.Click += btnHoy_Click;
-            dgvTurnos.AllowUserToAddRows = false; dgvTurnos.AllowUserToDeleteRows = false; dgvTurnos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill; dgvTurnos.ReadOnly = true; dgvTurnos.RowHeadersVisible = false; dgvTurnos.SelectionMode = DataGridViewSelectionMode.FullRowSelect; dgvTurnos.Location = new Point(18, 58); dgvTurnos.Size = new Size(690, 540);
-            calMes.Location = new Point(18, 58); calMes.Visible = false; calMes.DateSelected += calMes_DateSelected;
-            lblEstado.AutoSize = true; lblEstado.ForeColor = Color.FromArgb(84, 45, 50); lblEstado.Location = new Point(18, 610); lblEstado.Text = "Seleccione una vista para consultar los turnos.";
+            panelAgenda.Size = new Size(747, 670);
+            panelAgenda.TabIndex = 0;
+            // 
+            // lblVista
+            // 
+            lblVista.AutoSize = true;
+            lblVista.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblVista.Location = new Point(18, 18);
+            lblVista.Name = "lblVista";
+            lblVista.Size = new Size(116, 19);
+            lblVista.TabIndex = 0;
+            lblVista.Text = "Vista de agenda";
+            // 
+            // cmbVista
+            // 
+            cmbVista.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbVista.Font = new Font("Candara", 9.75F, FontStyle.Bold);
+            cmbVista.Items.AddRange(new object[] { "Diaria", "Semanal", "Mensual" });
+            cmbVista.Location = new Point(140, 17);
+            cmbVista.Name = "cmbVista";
+            cmbVista.Size = new Size(115, 23);
+            cmbVista.TabIndex = 1;
+            cmbVista.SelectedIndexChanged += cmbVista_SelectedIndexChanged;
+            // 
+            // dtpVista
+            // 
+            dtpVista.Font = new Font("Candara", 9.75F, FontStyle.Bold);
+            dtpVista.Format = DateTimePickerFormat.Short;
+            dtpVista.Location = new Point(265, 17);
+            dtpVista.Name = "dtpVista";
+            dtpVista.Size = new Size(130, 23);
+            dtpVista.TabIndex = 2;
+            dtpVista.ValueChanged += dtpVista_ValueChanged;
+            // 
+            // btnHoy
+            // 
+            btnHoy.Location = new Point(405, 17);
+            btnHoy.Name = "btnHoy";
+            btnHoy.Size = new Size(75, 25);
+            btnHoy.TabIndex = 3;
+            btnHoy.Text = "Hoy";
+            btnHoy.Click += btnHoy_Click;
+            // 
+            // dgvTurnos
+            // 
+            dgvTurnos.AllowUserToAddRows = false;
+            dgvTurnos.AllowUserToDeleteRows = false;
+            dgvTurnos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvTurnos.Location = new Point(18, 58);
+            dgvTurnos.Name = "dgvTurnos";
+            dgvTurnos.ReadOnly = true;
+            dgvTurnos.RowHeadersVisible = false;
+            dgvTurnos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvTurnos.Size = new Size(690, 540);
+            dgvTurnos.TabIndex = 4;
+            dgvTurnos.CellContentClick += dgvTurnos_CellContentClick;
+            // 
+            // calMes
+            // 
+            calMes.Location = new Point(18, 58);
+            calMes.Name = "calMes";
+            calMes.TabIndex = 5;
+            calMes.Visible = false;
+            calMes.DateSelected += calMes_DateSelected;
+            // 
+            // lblEstado
+            // 
+            lblEstado.AutoSize = true;
+            lblEstado.ForeColor = Color.FromArgb(84, 45, 50);
+            lblEstado.Location = new Point(18, 610);
+            lblEstado.Name = "lblEstado";
+            lblEstado.Size = new Size(249, 15);
+            lblEstado.TabIndex = 6;
+            lblEstado.Text = "Seleccione una vista para consultar los turnos.";
+            // 
             // Form1
-            AutoScaleMode = AutoScaleMode.Font; ClientSize = new Size(1100, 670); MinimumSize = new Size(900, 600); StartPosition = FormStartPosition.CenterScreen; Text = "Agenda de turnos - Estudio de tatuajes";
-            Controls.Add(panelAgenda); Controls.Add(panelDatos);
-            panelDatos.ResumeLayout(false); panelDatos.PerformLayout(); panelAgenda.ResumeLayout(false); panelAgenda.PerformLayout(); ((System.ComponentModel.ISupportInitialize)nudPresupuesto).EndInit(); ((System.ComponentModel.ISupportInitialize)dgvTurnos).EndInit(); ResumeLayout(false);
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1112, 670);
+            Controls.Add(panelAgenda);
+            Controls.Add(panelDatos);
+            MinimumSize = new Size(900, 600);
+            Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Agenda de turnos - Bona Ink Tattos";
+            panelDatos.ResumeLayout(false);
+            panelDatos.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)nudPresupuesto).EndInit();
+            panelAgenda.ResumeLayout(false);
+            panelAgenda.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvTurnos).EndInit();
+            ResumeLayout(false);
         }
 
         #endregion

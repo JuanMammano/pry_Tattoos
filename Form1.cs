@@ -83,9 +83,9 @@ namespace pry_Tattoos
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(txtDiseno.Text) || string.IsNullOrWhiteSpace(txtZona.Text) || string.IsNullOrWhiteSpace(txtEstilo.Text))
+            if (string.IsNullOrWhiteSpace(txtDiseno.Text) || string.IsNullOrWhiteSpace(txtZona.Text))
             {
-                MessageBox.Show("Complete la idea del diseño, la zona del cuerpo y el estilo artístico.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Complete la idea del diseño y la zona del cuerpo.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -118,7 +118,6 @@ namespace pry_Tattoos
                 FechaHoraFin = fin,
                 Diseno = txtDiseno.Text.Trim(),
                 Zona = txtZona.Text.Trim(),
-                Estilo = txtEstilo.Text.Trim(),
                 Presupuesto = nudPresupuesto.Value
             });
             GuardarDatos();
@@ -140,7 +139,6 @@ namespace pry_Tattoos
             txtTelefono.Clear();
             txtDiseno.Clear();
             txtZona.Clear();
-            txtEstilo.Clear();
             nudPresupuesto.Value = 0;
             dtpFecha.Value = DateTime.Today;
             dtpHora.Value = DateTime.Today.AddHours(10);
@@ -189,11 +187,15 @@ namespace pry_Tattoos
                 Horario = $"{t.FechaHoraInicio:HH:mm} - {t.FechaHoraFin:HH:mm}",
                 Cliente = datos.Clientes.FirstOrDefault(c => c.Id == t.ClienteId)?.Nombre ?? "Sin cliente",
                 Zona = t.Zona,
-                Estilo = t.Estilo,
-                Diseño = t.Diseno,
+                Observaciones = t.Diseno,
                 Presupuesto = t.Presupuesto.ToString("C")
             }).ToList();
             lblEstado.Text = $"{turnos.Count} turno(s) encontrado(s) entre {desde:dd/MM/yyyy} y {hasta.AddDays(-1):dd/MM/yyyy}.";
+        }
+
+        private void dgvTurnos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 
