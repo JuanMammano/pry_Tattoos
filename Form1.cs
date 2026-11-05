@@ -144,6 +144,7 @@ namespace pry_Tattoos
                 FechaHoraFin = fin,
                 Diseno = disenos,
                 Zona = txtZona.Text.Trim(),
+                Observaciones = txtObservaciones.Text.Trim(),
                 Presupuesto = presupuestos.Sum(),
                 Presupuestos = presupuestos
             });
@@ -157,6 +158,18 @@ namespace pry_Tattoos
 
         private void btnLimpiar_Click(object? sender, EventArgs e) => LimpiarFormulario();
 
+        private void btnHistorial_Click(object? sender, EventArgs e)
+        {
+            if (datos.Clientes.Count == 0)
+            {
+                MessageBox.Show("Todavía no hay clientes registrados.", "Historial de clientes", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using HistorialForm historial = new(datos);
+            historial.ShowDialog(this);
+        }
+
         private void LimpiarFormulario()
         {
             actualizandoCliente = true;
@@ -167,6 +180,7 @@ namespace pry_Tattoos
             txtDiseno.Clear();
             txtPresupuestos.Clear();
             txtZona.Clear();
+            txtObservaciones.Clear();
             dtpFecha.Value = DateTime.Today;
             dtpHora.Value = DateTime.Today.AddHours(10);
             lblEstado.Text = "Formulario listo para registrar un nuevo turno.";
@@ -262,6 +276,11 @@ namespace pry_Tattoos
             return string.Join(Environment.NewLine, disenos.Select((diseno, indice) =>
                 $"{diseno} - {turno.Presupuestos[indice]:C}"));
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 
     internal sealed class DatosAgenda
@@ -286,8 +305,135 @@ namespace pry_Tattoos
         public DateTime FechaHoraFin { get; set; }
         public string Diseno { get; set; } = string.Empty;
         public string Zona { get; set; } = string.Empty;
+        public string Observaciones { get; set; } = string.Empty;
         public string Estilo { get; set; } = string.Empty;
         public decimal Presupuesto { get; set; }
         public List<decimal> Presupuestos { get; set; } = new();
+    }
+
+    internal sealed class HistorialForm : Form
+    {
+        private readonly DatosAgenda datos;
+        private readonly ComboBox cmbCliente = new();
+        private readonly Label lblTelefono = new();
+        private readonly Label lblEstado = new();
+        private readonly DataGridView dgvTurnos = new();
+
+        public HistorialForm(DatosAgenda datos)
+        {
+            this.datos = datos;
+            ConfigurarFormulario();
+            CargarClientes();
+        }
+
+        private void ConfigurarFormulario()
+        {
+            Text = "Historial de turnos";
+            StartPosition = FormStartPosition.CenterParent;
+            ClientSize = new Size(1050, 500);
+            MinimumSize = new Size(800, 400);
+
+            Label lblCliente = new()
+            {
+                AutoSize = true,
+                Location = new Point(18, 18),
+                Text = "Seleccione un cliente:",
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold)
+            };
+
+            cmbCliente.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbCliente.Location = new Point(175, 16);
+            cmbCliente.Size = new Size(300, 25);
+            cmbCliente.SelectedIndexChanged += cmbCliente_SelectedIndexChanged;
+
+            lblTelefono.AutoSize = true;
+            lblTelefono.ForeColor = Color.FromArgb(84, 45, 50);
+            lblTelefono.Location = new Point(500, 20);
+
+            lblEstado.AutoSize = true;
+            lblEstado.ForeColor = Color.FromArgb(84, 45, 50);
+            lblEstado.Location = new Point(18, 52);
+
+            dgvTurnos.AllowUserToAddRows = false;
+            dgvTurnos.AllowUserToDeleteRows = false;
+            dgvTurnos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvTurnos.Location = new Point(18, 82);
+            dgvTurnos.ReadOnly = true;
+            dgvTurnos.RowHeadersVisible = false;
+            dgvTurnos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvTurnos.Size = new Size(1014, 390);
+            dgvTurnos.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+
+            dgvTurnos.Columns.Add("Fecha", "Fecha");
+            dgvTurnos.Columns.Add("Horario", "Horario");
+            dgvTurnos.Columns.Add("Diseno", "Diseño / tatuajes");
+            dgvTurnos.Columns.Add("Zona", "Zona del cuerpo");
+            dgvTurnos.Columns.Add("Observaciones", "Observaciones");
+            dgvTurnos.Columns.Add("Presupuestos", "Presupuestos");
+            dgvTurnos.Columns.Add("Total", "Presupuesto total");
+            dgvTurnos.Columns["Diseno"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dgvTurnos.Columns["Observaciones"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dgvTurnos.Columns["Presupuestos"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            Controls.Add(lblCliente);
+            Controls.Add(cmbCliente);
+            Controls.Add(lblTelefono);
+            Controls.Add(lblEstado);
+            Controls.Add(dgvTurnos);
+        }
+
+        private void CargarClientes()
+        {
+            cmbCliente.DataSource = datos.Clientes.OrderBy(c => c.Nombre).ToList();
+            cmbCliente.DisplayMember = nameof(Cliente.Nombre);
+            cmbCliente.ValueMember = nameof(Cliente.Id);
+            cmbCliente.SelectedIndex = -1;
+        }
+
+        private void cmbCliente_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (cmbCliente.SelectedItem is Cliente cliente)
+                MostrarHistorial(cliente);
+        }
+
+        private void MostrarHistorial(Cliente cliente)
+        {
+            lblTelefono.Text = $"Teléfono / WhatsApp: {cliente.Telefono}";
+            dgvTurnos.Rows.Clear();
+
+            List<Turno> turnos = datos.Turnos
+                .Where(t => t.ClienteId == cliente.Id)
+                .OrderBy(t => t.FechaHoraInicio)
+                .ToList();
+
+            foreach (Turno turno in turnos)
+            {
+                string[] disenos = turno.Diseno.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                string detallesPresupuesto = turno.Presupuestos.Count == disenos.Length
+                    ? string.Join(Environment.NewLine, disenos.Select((diseno, indice) => $"{diseno}: {turno.Presupuestos[indice]:C}"))
+                    : turno.Diseno;
+
+                dgvTurnos.Rows.Add(
+                    turno.FechaHoraInicio.ToString("dd/MM/yyyy"),
+                    $"{turno.FechaHoraInicio:HH:mm} - {turno.FechaHoraFin:HH:mm}",
+                    turno.Diseno,
+                    turno.Zona,
+                    ObtenerObservaciones(turno),
+                    detallesPresupuesto,
+                    turno.Presupuesto.ToString("C"));
+            }
+
+            lblEstado.Text = turnos.Count == 0
+                ? "Este cliente todavía no tiene turnos registrados."
+                : $"{turnos.Count} turno(s) registrado(s) para {cliente.Nombre}.";
+        }
+
+        private static string ObtenerObservaciones(Turno turno)
+        {
+            if (!string.IsNullOrWhiteSpace(turno.Observaciones))
+                return turno.Observaciones;
+
+            return string.IsNullOrWhiteSpace(turno.Estilo) ? "Sin observaciones" : turno.Estilo;
+        }
     }
 }
