@@ -33,6 +33,7 @@ namespace pry_Tattoos
         private DateTimePicker dtpVista;
         private Button btnHoy;
         private DataGridView dgvTurnos;
+        private DataGridViewComboBoxColumn columnaEstado;
         private DataGridViewButtonColumn btnEliminarTurno;
         private MonthCalendar calMes;
         private Label lblEstado;
@@ -80,6 +81,7 @@ namespace pry_Tattoos
             dtpVista = new DateTimePicker();
             btnHoy = new Button();
             dgvTurnos = new DataGridView();
+            columnaEstado = new DataGridViewComboBoxColumn();
             btnEliminarTurno = new DataGridViewButtonColumn();
             calMes = new MonthCalendar();
             lblEstado = new Label();
@@ -406,15 +408,28 @@ namespace pry_Tattoos
             dgvTurnos.AllowUserToAddRows = false;
             dgvTurnos.AllowUserToDeleteRows = false;
             dgvTurnos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvTurnos.Columns.AddRange(new DataGridViewColumn[] { btnEliminarTurno });
+            dgvTurnos.Columns.AddRange(new DataGridViewColumn[] { columnaEstado, btnEliminarTurno });
             dgvTurnos.Location = new Point(18, 58);
             dgvTurnos.Name = "dgvTurnos";
-            dgvTurnos.ReadOnly = true;
+            dgvTurnos.ReadOnly = false;
             dgvTurnos.RowHeadersVisible = false;
             dgvTurnos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvTurnos.Size = new Size(690, 540);
             dgvTurnos.TabIndex = 4;
             dgvTurnos.CellContentClick += dgvTurnos_CellContentClick;
+            dgvTurnos.CellFormatting += dgvTurnos_CellFormatting;
+            dgvTurnos.CellValueChanged += dgvTurnos_CellValueChanged;
+            dgvTurnos.CurrentCellDirtyStateChanged += dgvTurnos_CurrentCellDirtyStateChanged;
+            // 
+            // columnaEstado
+            // 
+            columnaEstado.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            columnaEstado.DisplayStyleForCurrentCellOnly = true;
+            columnaEstado.HeaderText = "Estado";
+            columnaEstado.Items.AddRange(new object[] { "Agendado", "Incompleto", "Postergado", "Finalizado" });
+            columnaEstado.Name = "Estado";
+            columnaEstado.ReadOnly = false;
+            columnaEstado.Width = 105;
             // 
             // btnEliminarTurno
             // 

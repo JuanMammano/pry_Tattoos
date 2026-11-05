@@ -5,8 +5,10 @@ namespace pry_Tattoos
     public partial class Form1 : Form
     {
         private readonly string archivoDatos = Path.Combine(AppContext.BaseDirectory, "agenda-tatuajes.json");
+        private static readonly string[] EstadosTurno = { "Agendado", "Incompleto", "Postergado", "Finalizado" };
         private DatosAgenda datos = new();
         private bool actualizandoCliente;
+        private bool actualizandoEstados;
 
         public Form1()
         {
@@ -145,6 +147,7 @@ namespace pry_Tattoos
                 Diseno = disenos,
                 Zona = txtZona.Text.Trim(),
                 Observaciones = txtObservaciones.Text.Trim(),
+                Estado = "Agendado",
                 Presupuesto = presupuestos.Sum(),
                 Presupuestos = presupuestos
             });
@@ -235,7 +238,74 @@ namespace pry_Tattoos
             dgvTurnos.Columns[nameof(Turno.Id)].Visible = false;
             dgvTurnos.Columns["Observaciones"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dgvTurnos.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+
+            actualizandoEstados = true;
+            for (int indice = 0; indice < turnos.Count; indice++)
+            {
+                string estado = NormalizarEstado(turnos[indice].Estado);
+                turnos[indice].Estado = estado;
+                dgvTurnos.Rows[indice].Cells[columnaEstado.Name].Value = estado;
+                AplicarColorEstado(dgvTurnos.Rows[indice].Cells[columnaEstado.Name], estado);
+            }
+
+            actualizandoEstados = false;
             lblEstado.Text = $"{turnos.Count} turno(s) encontrado(s) entre {desde:dd/MM/yyyy} y {hasta.AddDays(-1):dd/MM/yyyy}.";
+        }
+
+        private void dgvTurnos_CurrentCellDirtyStateChanged(object? sender, EventArgs e)
+        {
+            if (dgvTurnos.IsCurrentCellDirty && dgvTurnos.CurrentCell is DataGridViewComboBoxCell)
+                dgvTurnos.CommitEdit(DataGridViewDataErrorContexts.Commit);
+        }
+
+        private void dgvTurnos_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (actualizandoEstados || e.RowIndex < 0 || e.ColumnIndex < 0 ||
+                dgvTurnos.Columns[e.ColumnIndex].Name != columnaEstado.Name ||
+                dgvTurnos.Rows[e.RowIndex].Cells[nameof(Turno.Id)].Value is not Guid turnoId)
+                return;
+
+            string estado = NormalizarEstado(dgvTurnos.Rows[e.RowIndex].Cells[columnaEstado.Name].Value?.ToString());
+            Turno? turno = datos.Turnos.FirstOrDefault(t => t.Id == turnoId);
+            if (turno == null)
+                return;
+
+            turno.Estado = estado;
+            AplicarColorEstado(dgvTurnos.Rows[e.RowIndex].Cells[columnaEstado.Name], estado);
+            GuardarDatos();
+        }
+
+        private void dgvTurnos_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 &&
+                dgvTurnos.Columns[e.ColumnIndex].Name == columnaEstado.Name)
+            {
+                AplicarColorEstado(e.CellStyle, e.Value?.ToString());
+            }
+        }
+
+        private static string NormalizarEstado(string? estado) =>
+            EstadosTurno.Contains(estado) ? estado : EstadosTurno[0];
+
+        private static void AplicarColorEstado(DataGridViewCell celda, string estado)
+        {
+            AplicarColorEstado(celda.Style, estado);
+        }
+
+        private static void AplicarColorEstado(DataGridViewCellStyle estilo, string? estado)
+        {
+            (Color fondo, Color texto) = NormalizarEstado(estado) switch
+            {
+                "Incompleto" => (Color.LightCoral, Color.DarkRed),
+                "Postergado" => (Color.Khaki, Color.Black),
+                "Finalizado" => (Color.LightGreen, Color.DarkGreen),
+                _ => (Color.LightBlue, Color.DarkBlue)
+            };
+
+            estilo.BackColor = fondo;
+            estilo.ForeColor = texto;
+            estilo.SelectionBackColor = fondo;
+            estilo.SelectionForeColor = texto;
         }
 
         private void dgvTurnos_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -307,6 +377,7 @@ namespace pry_Tattoos
         public string Zona { get; set; } = string.Empty;
         public string Observaciones { get; set; } = string.Empty;
         public string Estilo { get; set; } = string.Empty;
+        public string Estado { get; set; } = "Agendado";
         public decimal Presupuesto { get; set; }
         public List<decimal> Presupuestos { get; set; } = new();
     }
