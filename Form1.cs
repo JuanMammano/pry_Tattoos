@@ -17,8 +17,14 @@ namespace pry_Tattoos
             dtpFecha.Value = DateTime.Today;
             dtpHora.Value = DateTime.Today.AddHours(10);
             dtpVista.Value = DateTime.Today;
+            txtDiseno.KeyPress += txtDiseno_KeyPress;
+            txtPresupuestos.KeyPress += txtPresupuestos_KeyPress;
+            txtZona.KeyPress += SoloLetras_KeyPress;
+            txtTelefono.KeyPress += SoloNumeros_KeyPress;
+            txtNombre.KeyPress += SoloLetras_KeyPress;
             CargarDatos();
             CargarClientes();
+            EstablecerFormularioHabilitado(false);
             ActualizarAgenda();
         }
 
@@ -57,9 +63,16 @@ namespace pry_Tattoos
 
         private void cmbCliente_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            if (actualizandoCliente || cmbCliente.SelectedItem is not Cliente cliente)
+            if (actualizandoCliente)
                 return;
 
+            if (cmbCliente.SelectedItem is not Cliente cliente)
+            {
+                EstablecerFormularioHabilitado(false);
+                return;
+            }
+
+            EstablecerFormularioHabilitado(true);
             txtNombre.Text = cliente.Nombre;
             txtTelefono.Text = cliente.Telefono;
         }
@@ -71,8 +84,44 @@ namespace pry_Tattoos
             actualizandoCliente = false;
             txtNombre.Clear();
             txtTelefono.Clear();
+            EstablecerFormularioHabilitado(true);
             txtNombre.Focus();
             lblEstado.Text = "Ingrese los datos del nuevo cliente para asociarlo al turno.";
+        }
+
+        private void EstablecerFormularioHabilitado(bool habilitado)
+        {
+            txtNombre.Enabled = habilitado;
+            txtTelefono.Enabled = habilitado;
+            dtpFecha.Enabled = habilitado;
+            dtpHora.Enabled = habilitado;
+            txtDiseno.Enabled = habilitado;
+            txtPresupuestos.Enabled = habilitado;
+            txtZona.Enabled = habilitado;
+            txtObservaciones.Enabled = habilitado;
+            btnGuardar.Enabled = habilitado;
+            btnLimpiar.Enabled = habilitado;
+            btnHistorial.Enabled = true;
+        }
+
+        private static void SoloLetras_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsWhiteSpace(e.KeyChar) && !char.IsControl(e.KeyChar);
+        }
+
+        private static void SoloNumeros_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+        }
+
+        private static void txtDiseno_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            e.Handled = char.IsDigit(e.KeyChar);
+        }
+
+        private static void txtPresupuestos_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && e.KeyChar != ',' && e.KeyChar != '.' && !char.IsControl(e.KeyChar);
         }
 
         private void btnGuardar_Click(object? sender, EventArgs e)
@@ -197,6 +246,7 @@ namespace pry_Tattoos
             txtObservaciones.Clear();
             dtpFecha.Value = DateTime.Today;
             dtpHora.Value = DateTime.Today.AddHours(10);
+            EstablecerFormularioHabilitado(false);
             lblEstado.Text = "Formulario listo para registrar un nuevo turno.";
         }
 
@@ -323,7 +373,7 @@ namespace pry_Tattoos
 
         private void dgvTurnos_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0 || dgvTurnos.Columns[e.ColumnIndex].Name != btnEliminarTurno.Name)
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
                 return;
 
             DataGridViewRow fila = dgvTurnos.Rows[e.RowIndex];
@@ -332,6 +382,16 @@ namespace pry_Tattoos
 
             Turno? turno = datos.Turnos.FirstOrDefault(t => t.Id == turnoId);
             if (turno == null)
+                return;
+
+            string columnaAccion = dgvTurnos.Columns[e.ColumnIndex].Name;
+            if (columnaAccion == btnModificarTurno.Name)
+            {
+                ModificarTurno(turno);
+                return;
+            }
+
+            if (columnaAccion != btnEliminarTurno.Name)
                 return;
 
             string nombreCliente = datos.Clientes.FirstOrDefault(c => c.Id == turno.ClienteId)?.Nombre ?? "Sin cliente";
@@ -348,6 +408,18 @@ namespace pry_Tattoos
             GuardarDatos();
             ActualizarAgenda();
             lblEstado.Text = "Turno eliminado correctamente.";
+        }
+
+        private void ModificarTurno(Turno turno)
+        {
+            string nombreCliente = datos.Clientes.FirstOrDefault(c => c.Id == turno.ClienteId)?.Nombre ?? "Sin cliente";
+            using EditarTurnoForm editor = new(turno, nombreCliente);
+            if (editor.ShowDialog(this) != DialogResult.OK)
+                return;
+
+            GuardarDatos();
+            ActualizarAgenda();
+            lblEstado.Text = "Turno modificado correctamente.";
         }
 
         private static string FormatearTatuajes(Turno turno)
@@ -393,6 +465,171 @@ namespace pry_Tattoos
         public string Estado { get; set; } = "Agendado";
         public decimal Presupuesto { get; set; }
         public List<decimal> Presupuestos { get; set; } = new();
+    }
+
+    internal sealed class EditarTurnoForm : Form
+    {
+        private static readonly string[] Estados = { "Agendado", "Incompleto", "Postergado", "Finalizado" };
+        private readonly Turno turno;
+        private readonly string nombreCliente;
+        private readonly TextBox txtCliente = new();
+        private readonly TextBox txtFecha = new();
+        private readonly TextBox txtHorario = new();
+        private readonly TextBox txtTatuajes = new();
+        private readonly TextBox txtZona = new();
+        private readonly TextBox txtObservaciones = new();
+        private readonly TextBox txtPresupuestos = new();
+        private readonly ComboBox cmbEstado = new();
+
+        public EditarTurnoForm(Turno turno, string nombreCliente)
+        {
+            this.turno = turno;
+            this.nombreCliente = nombreCliente;
+            ConfigurarFormulario(nombreCliente);
+            CargarTurno();
+        }
+
+        private void ConfigurarFormulario(string nombreCliente)
+        {
+            Text = "Modificar turno";
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ClientSize = new Size(560, 600);
+
+            AgregarEtiqueta("Cliente", 18, 18);
+            ConfigurarSoloLectura(txtCliente, 18, 39, 524);
+            AgregarEtiqueta("Fecha", 18, 72);
+            ConfigurarSoloLectura(txtFecha, 18, 93, 250);
+            AgregarEtiqueta("Horario", 292, 72);
+            ConfigurarSoloLectura(txtHorario, 292, 93, 250);
+            AgregarEtiqueta("Tatuajes (uno por línea)", 18, 126);
+            ConfigurarMultilinea(txtTatuajes, 18, 147, 524, 64);
+            AgregarEtiqueta("Zona (una por línea)", 18, 220);
+            ConfigurarMultilinea(txtZona, 18, 241, 524, 64);
+            AgregarEtiqueta("Observaciones", 18, 314);
+            ConfigurarMultilinea(txtObservaciones, 18, 335, 524, 64);
+            AgregarEtiqueta("Presupuestos (uno por línea)", 18, 408);
+            ConfigurarMultilinea(txtPresupuestos, 18, 429, 250, 64);
+            AgregarEtiqueta("Estado", 292, 408);
+            cmbEstado.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbEstado.Items.AddRange(Estados);
+            cmbEstado.Location = new Point(292, 429);
+            cmbEstado.Size = new Size(250, 23);
+
+            Button btnGuardar = new()
+            {
+                DialogResult = DialogResult.OK,
+                Location = new Point(292, 525),
+                Size = new Size(120, 35),
+                Text = "Guardar"
+            };
+            btnGuardar.Click += btnGuardar_Click;
+
+            Button btnCancelar = new()
+            {
+                DialogResult = DialogResult.Cancel,
+                Location = new Point(422, 525),
+                Size = new Size(120, 35),
+                Text = "Cancelar"
+            };
+
+            Controls.AddRange(new Control[]
+            {
+                txtCliente, txtFecha, txtHorario, txtTatuajes, txtZona,
+                txtObservaciones, txtPresupuestos, cmbEstado, btnGuardar, btnCancelar
+            });
+            AcceptButton = btnGuardar;
+            CancelButton = btnCancelar;
+        }
+
+        private void AgregarEtiqueta(string texto, int x, int y)
+        {
+            Controls.Add(new Label
+            {
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                Location = new Point(x, y),
+                Text = texto
+            });
+        }
+
+        private static void ConfigurarSoloLectura(TextBox textBox, int x, int y, int ancho)
+        {
+            textBox.Location = new Point(x, y);
+            textBox.ReadOnly = true;
+            textBox.Size = new Size(ancho, 23);
+        }
+
+        private static void ConfigurarMultilinea(TextBox textBox, int x, int y, int ancho, int alto)
+        {
+            textBox.Location = new Point(x, y);
+            textBox.Multiline = true;
+            textBox.ScrollBars = ScrollBars.Vertical;
+            textBox.Size = new Size(ancho, alto);
+        }
+
+        private void CargarTurno()
+        {
+            txtCliente.Text = nombreCliente;
+            txtTatuajes.Text = turno.Diseno;
+            txtZona.Text = turno.Zona;
+            txtObservaciones.Text = turno.Observaciones;
+            txtPresupuestos.Text = string.Join(Environment.NewLine, turno.Presupuestos);
+            txtFecha.Text = turno.FechaHoraInicio.ToString("dd/MM/yyyy");
+            txtHorario.Text = $"{turno.FechaHoraInicio:HH:mm} - {turno.FechaHoraFin:HH:mm}";
+            cmbEstado.SelectedItem = NormalizarEstado(turno.Estado);
+        }
+
+        private void btnGuardar_Click(object? sender, EventArgs e)
+        {
+            List<string> lineasDiseno = ObtenerLineas(txtTatuajes);
+            List<string> lineasZona = ObtenerLineas(txtZona);
+            List<string> lineasPresupuesto = ObtenerLineas(txtPresupuestos);
+
+            if (lineasDiseno.Count == 0 || lineasZona.Count == 0)
+            {
+                MessageBox.Show("Ingrese al menos un tatuaje y una zona del cuerpo.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None;
+                return;
+            }
+
+            if (lineasDiseno.Count != lineasZona.Count || lineasDiseno.Count != lineasPresupuesto.Count)
+            {
+                MessageBox.Show("Debe ingresar un tatuaje, una zona y un presupuesto por cada línea.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None;
+                return;
+            }
+
+            List<decimal> presupuestos = new();
+            foreach (string linea in lineasPresupuesto)
+            {
+                if (!decimal.TryParse(linea, out decimal presupuesto) || presupuesto < 0)
+                {
+                    MessageBox.Show($"El presupuesto «{linea}» no es válido.", "Presupuesto inválido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    DialogResult = DialogResult.None;
+                    return;
+                }
+
+                presupuestos.Add(presupuesto);
+            }
+
+            turno.Diseno = string.Join(Environment.NewLine, lineasDiseno);
+            turno.Zona = string.Join(Environment.NewLine, lineasZona);
+            turno.Observaciones = txtObservaciones.Text.Trim();
+            turno.Presupuestos = presupuestos;
+            turno.Presupuesto = presupuestos.Sum();
+            turno.Estado = NormalizarEstado(cmbEstado.SelectedItem?.ToString());
+        }
+
+        private static List<string> ObtenerLineas(TextBox textBox) => textBox.Lines
+            .Select(linea => linea.Trim())
+            .Where(linea => linea.Length > 0)
+            .ToList();
+
+        private static string NormalizarEstado(string? estado) =>
+            Estados.Contains(estado) ? estado : Estados[0];
     }
 
     internal sealed class HistorialForm : Form

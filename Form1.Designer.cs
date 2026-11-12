@@ -42,6 +42,7 @@ namespace pry_Tattoos
         private DataGridViewTextBoxColumn columnaObservaciones;
         private DataGridViewTextBoxColumn columnaPresupuesto;
         private DataGridViewComboBoxColumn columnaEstado;
+        private DataGridViewButtonColumn btnModificarTurno;
         private DataGridViewButtonColumn btnEliminarTurno;
         private MonthCalendar calMes;
         private Label lblEstado;
@@ -98,6 +99,7 @@ namespace pry_Tattoos
             columnaObservaciones = new DataGridViewTextBoxColumn();
             columnaPresupuesto = new DataGridViewTextBoxColumn();
             columnaEstado = new DataGridViewComboBoxColumn();
+            btnModificarTurno = new DataGridViewButtonColumn();
             btnEliminarTurno = new DataGridViewButtonColumn();
             calMes = new MonthCalendar();
             lblEstado = new Label();
@@ -428,7 +430,7 @@ namespace pry_Tattoos
             dgvTurnos.AllowUserToDeleteRows = false;
             dgvTurnos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvTurnos.AutoGenerateColumns = false;
-            dgvTurnos.Columns.AddRange(new DataGridViewColumn[] { columnaId, columnaFecha, columnaHorario, columnaCliente, columnaTatuajes, columnaZona, columnaObservaciones, columnaPresupuesto, columnaEstado, btnEliminarTurno });
+            dgvTurnos.Columns.AddRange(new DataGridViewColumn[] { columnaId, columnaFecha, columnaHorario, columnaCliente, columnaTatuajes, columnaZona, columnaObservaciones, columnaPresupuesto, columnaEstado, btnModificarTurno, btnEliminarTurno });
             dgvTurnos.Location = new Point(18, 58);
             dgvTurnos.Name = "dgvTurnos";
             dgvTurnos.ReadOnly = false;
@@ -507,6 +509,16 @@ namespace pry_Tattoos
             columnaEstado.Name = "Estado";
             columnaEstado.ReadOnly = false;
             columnaEstado.Width = 105;
+            // 
+            // btnModificarTurno
+            // 
+            btnModificarTurno.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            btnModificarTurno.HeaderText = "Acción";
+            btnModificarTurno.Name = "btnModificarTurno";
+            btnModificarTurno.ReadOnly = true;
+            btnModificarTurno.Text = "Modificar";
+            btnModificarTurno.UseColumnTextForButtonValue = true;
+            btnModificarTurno.Width = 85;
             // 
             // btnEliminarTurno
             // 
