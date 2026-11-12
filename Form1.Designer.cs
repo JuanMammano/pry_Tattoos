@@ -33,6 +33,14 @@ namespace pry_Tattoos
         private DateTimePicker dtpVista;
         private Button btnHoy;
         private DataGridView dgvTurnos;
+        private DataGridViewTextBoxColumn columnaId;
+        private DataGridViewTextBoxColumn columnaFecha;
+        private DataGridViewTextBoxColumn columnaHorario;
+        private DataGridViewTextBoxColumn columnaCliente;
+        private DataGridViewTextBoxColumn columnaTatuajes;
+        private DataGridViewTextBoxColumn columnaZona;
+        private DataGridViewTextBoxColumn columnaObservaciones;
+        private DataGridViewTextBoxColumn columnaPresupuesto;
         private DataGridViewComboBoxColumn columnaEstado;
         private DataGridViewButtonColumn btnEliminarTurno;
         private MonthCalendar calMes;
@@ -81,6 +89,14 @@ namespace pry_Tattoos
             dtpVista = new DateTimePicker();
             btnHoy = new Button();
             dgvTurnos = new DataGridView();
+            columnaId = new DataGridViewTextBoxColumn();
+            columnaFecha = new DataGridViewTextBoxColumn();
+            columnaHorario = new DataGridViewTextBoxColumn();
+            columnaCliente = new DataGridViewTextBoxColumn();
+            columnaTatuajes = new DataGridViewTextBoxColumn();
+            columnaZona = new DataGridViewTextBoxColumn();
+            columnaObservaciones = new DataGridViewTextBoxColumn();
+            columnaPresupuesto = new DataGridViewTextBoxColumn();
             columnaEstado = new DataGridViewComboBoxColumn();
             btnEliminarTurno = new DataGridViewButtonColumn();
             calMes = new MonthCalendar();
@@ -266,20 +282,23 @@ namespace pry_Tattoos
             lblZona.Name = "lblZona";
             lblZona.Size = new Size(107, 16);
             lblZona.TabIndex = 16;
-            lblZona.Text = "Zona del cuerpo";
+            lblZona.Text = "Zona del cuerpo (una por línea)";
             // 
             // txtZona
             // 
             txtZona.Location = new Point(18, 495);
+            txtZona.Multiline = true;
             txtZona.Name = "txtZona";
-            txtZona.Size = new Size(150, 23);
+            txtZona.PlaceholderText = "Ej.: brazo\r\nHombro";
+            txtZona.ScrollBars = ScrollBars.Vertical;
+            txtZona.Size = new Size(317, 40);
             txtZona.TabIndex = 17;
             // 
             // lblObservaciones
             // 
             lblObservaciones.AutoSize = true;
             lblObservaciones.Font = new Font("Ink Free", 9.75F, FontStyle.Bold);
-            lblObservaciones.Location = new Point(18, 530);
+            lblObservaciones.Location = new Point(18, 544);
             lblObservaciones.Name = "lblObservaciones";
             lblObservaciones.Size = new Size(99, 16);
             lblObservaciones.TabIndex = 18;
@@ -287,7 +306,7 @@ namespace pry_Tattoos
             // 
             // txtObservaciones
             // 
-            txtObservaciones.Location = new Point(18, 551);
+            txtObservaciones.Location = new Point(18, 565);
             txtObservaciones.Name = "txtObservaciones";
             txtObservaciones.Size = new Size(317, 23);
             txtObservaciones.TabIndex = 19;
@@ -319,7 +338,7 @@ namespace pry_Tattoos
             btnGuardar.FlatStyle = FlatStyle.Flat;
             btnGuardar.Font = new Font("Book Antiqua", 12F, FontStyle.Bold);
             btnGuardar.ForeColor = Color.White;
-            btnGuardar.Location = new Point(18, 590);
+            btnGuardar.Location = new Point(18, 594);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(155, 49);
             btnGuardar.TabIndex = 20;
@@ -330,7 +349,7 @@ namespace pry_Tattoos
             // btnHistorial
             // 
             btnHistorial.Font = new Font("Book Antiqua", 12F, FontStyle.Bold);
-            btnHistorial.Location = new Point(12, 645);
+            btnHistorial.Location = new Point(12, 649);
             btnHistorial.Name = "btnHistorial";
             btnHistorial.Size = new Size(317, 40);
             btnHistorial.TabIndex = 22;
@@ -340,7 +359,7 @@ namespace pry_Tattoos
             // btnLimpiar
             // 
             btnLimpiar.Font = new Font("Book Antiqua", 12F, FontStyle.Bold);
-            btnLimpiar.Location = new Point(180, 590);
+            btnLimpiar.Location = new Point(180, 594);
             btnLimpiar.Name = "btnLimpiar";
             btnLimpiar.Size = new Size(155, 49);
             btnLimpiar.TabIndex = 21;
@@ -408,7 +427,8 @@ namespace pry_Tattoos
             dgvTurnos.AllowUserToAddRows = false;
             dgvTurnos.AllowUserToDeleteRows = false;
             dgvTurnos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvTurnos.Columns.AddRange(new DataGridViewColumn[] { columnaEstado, btnEliminarTurno });
+            dgvTurnos.AutoGenerateColumns = false;
+            dgvTurnos.Columns.AddRange(new DataGridViewColumn[] { columnaId, columnaFecha, columnaHorario, columnaCliente, columnaTatuajes, columnaZona, columnaObservaciones, columnaPresupuesto, columnaEstado, btnEliminarTurno });
             dgvTurnos.Location = new Point(18, 58);
             dgvTurnos.Name = "dgvTurnos";
             dgvTurnos.ReadOnly = false;
@@ -420,6 +440,63 @@ namespace pry_Tattoos
             dgvTurnos.CellFormatting += dgvTurnos_CellFormatting;
             dgvTurnos.CellValueChanged += dgvTurnos_CellValueChanged;
             dgvTurnos.CurrentCellDirtyStateChanged += dgvTurnos_CurrentCellDirtyStateChanged;
+            // 
+            // columnaId
+            // 
+            columnaId.DataPropertyName = "Id";
+            columnaId.HeaderText = "Id";
+            columnaId.Name = "Id";
+            columnaId.ReadOnly = true;
+            columnaId.Visible = false;
+            // 
+            // columnaFecha
+            // 
+            columnaFecha.DataPropertyName = "Fecha";
+            columnaFecha.HeaderText = "Fecha";
+            columnaFecha.Name = "Fecha";
+            columnaFecha.ReadOnly = true;
+            // 
+            // columnaHorario
+            // 
+            columnaHorario.DataPropertyName = "Horario";
+            columnaHorario.HeaderText = "Horario";
+            columnaHorario.Name = "Horario";
+            columnaHorario.ReadOnly = true;
+            // 
+            // columnaCliente
+            // 
+            columnaCliente.DataPropertyName = "Cliente";
+            columnaCliente.HeaderText = "Cliente";
+            columnaCliente.Name = "Cliente";
+            columnaCliente.ReadOnly = true;
+            // 
+            // columnaTatuajes
+            // 
+            columnaTatuajes.DataPropertyName = "Tatuajes";
+            columnaTatuajes.HeaderText = "Tatuajes";
+            columnaTatuajes.Name = "Tatuajes";
+            columnaTatuajes.ReadOnly = true;
+            // 
+            // columnaZona
+            // 
+            columnaZona.DataPropertyName = "Zona";
+            columnaZona.HeaderText = "Zona";
+            columnaZona.Name = "Zona";
+            columnaZona.ReadOnly = true;
+            // 
+            // columnaObservaciones
+            // 
+            columnaObservaciones.DataPropertyName = "Observaciones";
+            columnaObservaciones.HeaderText = "Observaciones";
+            columnaObservaciones.Name = "Observaciones";
+            columnaObservaciones.ReadOnly = true;
+            // 
+            // columnaPresupuesto
+            // 
+            columnaPresupuesto.DataPropertyName = "Presupuesto";
+            columnaPresupuesto.HeaderText = "Presupuesto";
+            columnaPresupuesto.Name = "Presupuesto";
+            columnaPresupuesto.ReadOnly = true;
             // 
             // columnaEstado
             // 

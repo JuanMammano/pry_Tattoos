@@ -79,10 +79,15 @@ namespace pry_Tattoos
         {
             string nombre = txtNombre.Text.Trim();
             string telefono = txtTelefono.Text.Trim();
-            string disenos = string.Join(Environment.NewLine, txtDiseno.Lines
+            List<string> lineasDiseno = txtDiseno.Lines
                 .Select(linea => linea.Trim())
-                .Where(linea => linea.Length > 0));
-            List<string> lineasDiseno = disenos.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
+                .Where(linea => linea.Length > 0)
+                .ToList();
+            string disenos = string.Join(Environment.NewLine, lineasDiseno);
+            List<string> lineasZona = txtZona.Lines
+                .Select(linea => linea.Trim())
+                .Where(linea => linea.Length > 0)
+                .ToList();
             List<string> lineasPresupuesto = txtPresupuestos.Lines
                 .Select(linea => linea.Trim())
                 .Where(linea => linea.Length > 0)
@@ -99,6 +104,12 @@ namespace pry_Tattoos
                 return;
             }
 
+            if (lineasDiseno.Count != lineasZona.Count)
+            {
+                MessageBox.Show("Ingrese una zona del cuerpo por cada tatuaje, respetando el mismo orden.", "Zonas incompletas", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             List<decimal> presupuestos = new();
             foreach (string linea in lineasPresupuesto)
             {
@@ -111,7 +122,7 @@ namespace pry_Tattoos
                 presupuestos.Add(presupuesto);
             }
 
-            if (string.IsNullOrWhiteSpace(disenos) || string.IsNullOrWhiteSpace(txtZona.Text))
+            if (lineasDiseno.Count == 0 || lineasZona.Count == 0)
             {
                 MessageBox.Show("Complete la idea del diseño y la zona del cuerpo.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -145,7 +156,7 @@ namespace pry_Tattoos
                 FechaHoraInicio = inicio,
                 FechaHoraFin = fin,
                 Diseno = disenos,
-                Zona = txtZona.Text.Trim(),
+                Zona = string.Join(Environment.NewLine, lineasZona),
                 Observaciones = txtObservaciones.Text.Trim(),
                 Estado = "Agendado",
                 Presupuesto = presupuestos.Sum(),
@@ -232,11 +243,13 @@ namespace pry_Tattoos
                 Horario = $"{t.FechaHoraInicio:HH:mm} - {t.FechaHoraFin:HH:mm}",
                 Cliente = datos.Clientes.FirstOrDefault(c => c.Id == t.ClienteId)?.Nombre ?? "Sin cliente",
                 Zona = t.Zona,
-                Observaciones = FormatearObservaciones(t),
+                Observaciones = t.Observaciones,
+                Tatuajes = FormatearTatuajes(t),
                 Presupuesto = t.Presupuesto.ToString("C")
             }).ToList();
-            dgvTurnos.Columns[nameof(Turno.Id)].Visible = false;
+            dgvTurnos.Columns["Zona"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dgvTurnos.Columns["Observaciones"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dgvTurnos.Columns["Tatuajes"].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dgvTurnos.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
             actualizandoEstados = true;
@@ -337,7 +350,7 @@ namespace pry_Tattoos
             lblEstado.Text = "Turno eliminado correctamente.";
         }
 
-        private static string FormatearObservaciones(Turno turno)
+        private static string FormatearTatuajes(Turno turno)
         {
             string[] disenos = turno.Diseno.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
             if (turno.Presupuestos.Count != disenos.Length)
