@@ -413,7 +413,7 @@ namespace pry_Tattoos
         private void ModificarTurno(Turno turno)
         {
             string nombreCliente = datos.Clientes.FirstOrDefault(c => c.Id == turno.ClienteId)?.Nombre ?? "Sin cliente";
-            using EditarTurnoForm editor = new(turno, nombreCliente);
+            using EditarTurnoForm editor = new(turno, nombreCliente, datos);
             if (editor.ShowDialog(this) != DialogResult.OK)
                 return;
 
@@ -472,19 +472,21 @@ namespace pry_Tattoos
         private static readonly string[] Estados = { "Agendado", "Incompleto", "Postergado", "Finalizado" };
         private readonly Turno turno;
         private readonly string nombreCliente;
+        private readonly DatosAgenda datos;
         private readonly TextBox txtCliente = new();
-        private readonly TextBox txtFecha = new();
-        private readonly TextBox txtHorario = new();
+        private readonly DateTimePicker dtpFecha = new();
+        private readonly DateTimePicker dtpHora = new();
         private readonly TextBox txtTatuajes = new();
         private readonly TextBox txtZona = new();
         private readonly TextBox txtObservaciones = new();
         private readonly TextBox txtPresupuestos = new();
         private readonly ComboBox cmbEstado = new();
 
-        public EditarTurnoForm(Turno turno, string nombreCliente)
+        public EditarTurnoForm(Turno turno, string nombreCliente, DatosAgenda datos)
         {
             this.turno = turno;
             this.nombreCliente = nombreCliente;
+            this.datos = datos;
             ConfigurarFormulario(nombreCliente);
             CargarTurno();
         }
@@ -501,9 +503,16 @@ namespace pry_Tattoos
             AgregarEtiqueta("Cliente", 18, 18);
             ConfigurarSoloLectura(txtCliente, 18, 39, 524);
             AgregarEtiqueta("Fecha", 18, 72);
-            ConfigurarSoloLectura(txtFecha, 18, 93, 250);
+            dtpFecha.Format = DateTimePickerFormat.Custom;
+            dtpFecha.CustomFormat = "dd/MM/yyyy";
+            dtpFecha.Location = new Point(18, 93);
+            dtpFecha.Size = new Size(250, 23);
             AgregarEtiqueta("Horario", 292, 72);
-            ConfigurarSoloLectura(txtHorario, 292, 93, 250);
+            dtpHora.Format = DateTimePickerFormat.Custom;
+            dtpHora.CustomFormat = "HH:mm";
+            dtpHora.ShowUpDown = true;
+            dtpHora.Location = new Point(292, 93);
+            dtpHora.Size = new Size(250, 23);
             AgregarEtiqueta("Tatuajes (uno por línea)", 18, 126);
             ConfigurarMultilinea(txtTatuajes, 18, 147, 524, 64);
             AgregarEtiqueta("Zona (una por línea)", 18, 220);
@@ -537,7 +546,7 @@ namespace pry_Tattoos
 
             Controls.AddRange(new Control[]
             {
-                txtCliente, txtFecha, txtHorario, txtTatuajes, txtZona,
+                txtCliente, dtpFecha, dtpHora, txtTatuajes, txtZona,
                 txtObservaciones, txtPresupuestos, cmbEstado, btnGuardar, btnCancelar
             });
             AcceptButton = btnGuardar;
@@ -577,13 +586,23 @@ namespace pry_Tattoos
             txtZona.Text = turno.Zona;
             txtObservaciones.Text = turno.Observaciones;
             txtPresupuestos.Text = string.Join(Environment.NewLine, turno.Presupuestos);
-            txtFecha.Text = turno.FechaHoraInicio.ToString("dd/MM/yyyy");
-            txtHorario.Text = $"{turno.FechaHoraInicio:HH:mm} - {turno.FechaHoraFin:HH:mm}";
+            dtpFecha.Value = turno.FechaHoraInicio.Date;
+            dtpHora.Value = DateTime.Today.Add(turno.FechaHoraInicio.TimeOfDay);
             cmbEstado.SelectedItem = NormalizarEstado(turno.Estado);
         }
 
         private void btnGuardar_Click(object? sender, EventArgs e)
         {
+            DateTime nuevaFechaHora = dtpFecha.Value.Date + dtpHora.Value.TimeOfDay;
+            bool existeOtroTurnoEnLaFechaHora = datos.Turnos.Any(t =>
+                t.Id != turno.Id && t.FechaHoraInicio == nuevaFechaHora);
+            if (existeOtroTurnoEnLaFechaHora)
+            {
+                MessageBox.Show("Ya existe otro turno en la fecha seleccionada", "Fecha ocupada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None;
+                return;
+            }
+
             List<string> lineasDiseno = ObtenerLineas(txtTatuajes);
             List<string> lineasZona = ObtenerLineas(txtZona);
             List<string> lineasPresupuesto = ObtenerLineas(txtPresupuestos);
@@ -615,6 +634,9 @@ namespace pry_Tattoos
                 presupuestos.Add(presupuesto);
             }
 
+            TimeSpan duracion = turno.FechaHoraFin - turno.FechaHoraInicio;
+            turno.FechaHoraInicio = nuevaFechaHora;
+            turno.FechaHoraFin = turno.FechaHoraInicio + duracion;
             turno.Diseno = string.Join(Environment.NewLine, lineasDiseno);
             turno.Zona = string.Join(Environment.NewLine, lineasZona);
             turno.Observaciones = txtObservaciones.Text.Trim();
